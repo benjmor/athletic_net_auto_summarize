@@ -6,7 +6,7 @@ As of October 2023, this has only been tested on cross-country meets. Track supp
 
 # Usage
 
-To run this script, you will need Python 3.7+, an OpenAI API key, and an Internet connection.
+To run this script, you will need Python 3.7+, [an OpenAI API key](https://openai.com/blog/openai-api), and an Internet connection.
 
 0. Download this repository, or just the `athleticnet_summarize.py` file. Change directories so you are in the same directory as the script.
 1. In the same directory, create a file called `openAiAuthKey.txt` with your OpenAI API key (should be around 50 characters long). Treat the API key like a password -- don't share it with anyone and don't accidentally upload it.
