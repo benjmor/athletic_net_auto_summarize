@@ -25,7 +25,9 @@ def get_meet_location(driver, url):
     return "Sacramento"
 
 
-def get_meet_results_for_school(driver, url, school_name, meet_date):
+def get_meet_results_for_school(
+    driver, url, school_name, meet_date, location_override, number_of_teams_override
+):
     meet_results_for_school = {}
     driver.get(url)
     WebDriverWait(driver, 10).until(
@@ -34,8 +36,14 @@ def get_meet_results_for_school(driver, url, school_name, meet_date):
         )
     )
 
-    number_of_teams = get_number_of_competing_teams(driver, url)
-    meet_location = get_meet_location(driver, url)
+    if location_override:
+        meet_location = location_override
+    else:
+        meet_location = get_meet_location(driver, url)
+    if number_of_teams_override:
+        number_of_teams = number_of_teams_override
+    else:
+        number_of_teams = get_number_of_competing_teams(driver, url)
     meet_results_for_school["number_of_total_teams"] = number_of_teams
     meet_results_for_school["meet_location"] = meet_location
     meet_results_for_school["meet_date"] = meet_date
@@ -77,7 +85,9 @@ def get_meet_results_for_school(driver, url, school_name, meet_date):
                         "rank_of_scoring_teams": f"{team_rank}/{total_scoring_teams}",
                         "points": parsed_team_score[2].text,
                     }
-                    meet_results_for_school[f"{gender}|{race_name}"]["team_result"]["school_name"] = school_name
+                    meet_results_for_school[f"{gender}|{race_name}"]["team_result"][
+                        "school_name"
+                    ] = school_name
                     # Include 'rival' results -- the teams 1 ahead and 1 behind the target school
                     if team_score_index > 0:
                         parsed_better_team_score = team_score_list[
@@ -138,7 +148,14 @@ def get_meet_results_for_school(driver, url, school_name, meet_date):
     return meet_results_for_school
 
 
-def get_school_results_for_year_and_sport(school_id, year, sport_name, meet_id=None):
+def get_school_results_for_year_and_sport(
+    school_id,
+    year,
+    sport_name,
+    meet_id=None,
+    location_override=None,
+    number_of_teams_override=None,
+):
     team_results_dict = {}
     chrome_options = Options()
     chrome_options.add_argument("--headless=new")
@@ -180,6 +197,8 @@ def get_school_results_for_year_and_sport(school_id, year, sport_name, meet_id=N
                 url=f"{meet_url}/results/all",
                 school_name=school_name,
                 meet_date=date,
+                location_override=location_override,
+                number_of_teams_override=number_of_teams_override,
             )
     # Close the browser session
     browser.quit()
@@ -299,7 +318,7 @@ def generate_chat_gpt_article(
         ],
     )["choices"][0]["message"]["content"]
     summary_folder = f"{meet_name}_summaries"
-    os.makedirs(summary_folder, exist_ok=True)
+    os.makedirs(os.path.join(script_dir, summary_folder), exist_ok=True)
     with open(
         os.path.join(script_dir, summary_folder, f"{school_name}_summary.txt"), "w"
     ) as f:
@@ -334,6 +353,16 @@ if __name__ == "__main__":
         "--meet-id",
         help="Meet ID (string) of the meet you want to generate an article for.",
     )
+    parser.add_argument(
+        "-l",
+        "--location-override",
+        help="Location override (string) of the meet you want to generate an article for. If not provided, will attempt to pull from website or use a default value",
+    )
+    parser.add_argument(
+        "-n",
+        "--number-of-teams-override",
+        help="Number of teams override (int) of the meet you want to generate an article for. If not provided, will attempt to pull from website or use a default value",
+    )
     args = parser.parse_args()
     school_id = args.school_id
     meet_id = args.meet_id
@@ -352,8 +381,15 @@ if __name__ == "__main__":
     year = args.year
     if year is None:
         year = datetime.datetime.now().year
+    location_override = args.location_override
+    number_of_teams_override = args.number_of_teams_override
     results, school_name = get_school_results_for_year_and_sport(
-        school_id=school_id, year=year, sport_name=sport_name, meet_id=meet_id
+        school_id=school_id,
+        year=year,
+        sport_name=sport_name,
+        meet_id=meet_id,
+        location_override=location_override,
+        number_of_teams_override=number_of_teams_override,
     )
     for result in results.keys():
         meet_location = results[result]["meet_location"]
