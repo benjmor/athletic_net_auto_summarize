@@ -1,0 +1,37 @@
+# Less of a public API, so will heavily rely on web scraping
+
+# Notes
+# https://github.com/StrachByLightning/athletic.net-data-retrieval-tool/blob/master/webscrape.py
+
+https://github.com/daveb-501commons/athletic.net-team-data
+TEAM_ID = "807"
+SPORT_NAME = "cross-country" # "track-and-field-outdoor"
+YEAR = "2023"
+SPORT_PASCAL_CASE = "CrossCountry"
+
+team_page = f"https://www.athletic.net/team/{TEAM_ID}/{SPORT_NAME}/{YEAR}"
+
+# Cross country only
+results_grid = f"https://www.athletic.net/CrossCountry/Results/Season.aspx?SchoolID={TEAM_ID}"
+
+
+# Get the latest meet that has results
+Should look something like:
+f"https://www.athletic.net/{SPORT_PASCAL_CASE}/meet/{MEET_ID}/info"
+# Grab the following information from the meet result:
+
+When was the meet?
+Where was the meet held?
+How many teams were present?
+Get each result:
+    Name of the race
+    Distance of the race
+    Team score
+    Team place (and how close they were to other teams in the meet).
+    All runners, with data on whether their result was a personal/season best (need to consult against the results grid)
+
+# Create a ChatGPT prompt:
+Write a three-paragraph article for a high school newspaper summarizing a {SPORT_NAME} meet for a certain team.
+
+Highlight the names of top runners.
+Add a spot for a placeholder quote from the coach or captain.
