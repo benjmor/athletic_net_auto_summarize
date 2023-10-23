@@ -18,11 +18,11 @@ logging.basicConfig(level=logging.INFO)
 
 
 def get_number_of_competing_teams(driver, url):
-    return 50  # TODO - Implement this
+    return 50
 
 
 def get_meet_location(driver, url):
-    return "Sacramento"  # TODO - Implement this
+    return "Sacramento"
 
 
 def get_meet_results_for_school(driver, url, school_name, meet_date):
@@ -130,8 +130,8 @@ def get_meet_results_for_school(driver, url, school_name, meet_date):
                             "school": parsed_individual_result[6].text,
                             "gender": gender,
                             "race_name": race_name,
-                            # "is_personal_best": bool(check_pb()) # TODO - implement
-                            # "is_season_best": bool(check_sb()) # TODO - implement
+                            # "is_personal_best": bool(check_pb())
+                            # "is_season_best": bool(check_sb())
                         }
                     )
         gender_index = gender_index + 1
@@ -222,7 +222,6 @@ The team data includes information about schools that did one rank better or wor
     """
     if sport_name == "cross-country":
         chat_gpt_payload = [chat_gpt_basic_prompt, cross_country_addendum]
-    # TODO - Track
 
     return chat_gpt_payload
 
@@ -317,7 +316,6 @@ if __name__ == "__main__":
         "--school-id",
         help="School ID (number) of the school you want to generate an article for.",
         # required=True,
-        default="807",  # Default to Mira Loma during testing TODO remove
     )
     parser.add_argument(
         "-y",
@@ -326,16 +324,15 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument(
-        "-s:",
+        "-s",
         "--sport-name",
         help="Sport name (string) of the sport you want to generate an article for.",
         default="cross-country",
     )
     parser.add_argument(
-        "-m:",
+        "-m",
         "--meet-id",
         help="Meet ID (string) of the meet you want to generate an article for.",
-        default="222947",  # TODO - remove
     )
     args = parser.parse_args()
     school_id = args.school_id
@@ -358,7 +355,6 @@ if __name__ == "__main__":
     results, school_name = get_school_results_for_year_and_sport(
         school_id=school_id, year=year, sport_name=sport_name, meet_id=meet_id
     )
-    # TODO - Add support for a quote from a team captain/coach and add their quote to ChatGPT prompt
     for result in results.keys():
         meet_location = results[result]["meet_location"]
         meet_date = results[result]["meet_date"]
