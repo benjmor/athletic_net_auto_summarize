@@ -14,7 +14,7 @@ To run this script, you will need Python 3.7+, [an OpenAI API key](https://opena
 3. Find the meet ID (usually 6 digits) you want to generate a report for. This can be found in the URL if you click on a meet listed in the team calendar section.
 4. Pass these values to the script using the following syntax (you may need to use `python3` in some instances):
 ```bash
-python athleticnet_summarize.py -i <YOUR_SCHOOL_ID> -m <YOUR_MEET_ID>
+python athleticnet_summarize.py -i <YOUR_SCHOOL_ID> -m <YOUR_MEET_ID> # You may also want to add some location/number of teams overrides...haven't implemented those functions yet
 ```
 5. The script will generate a meet summary in plain text in a subfolder of your current directory. Review the output, edit as needed, and post on your website, social media, school newspaper, or just send it to grandma and grandpa.
 
