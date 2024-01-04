@@ -30,11 +30,16 @@ def get_meet_results_for_school(
 ):
     meet_results_for_school = {}
     driver.get(url)
-    WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located(
-            (By.XPATH, "//table[@class='ng-star-inserted']")
+    try:
+        WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located(
+                (By.XPATH, "//table[@class='ng-star-inserted']")
+            )
         )
-    )
+    except selenium.common.exceptions.TimeoutException:
+        logging.info(
+            f"Timed out waiting for team results table to load for {url}. This may simply indicate that there are no team results."
+        )
 
     if location_override:
         meet_location = location_override
@@ -176,6 +181,9 @@ def get_school_results_for_year_and_sport(
         .text
     )
     calendar_items = browser.find_elements(By.CSS_SELECTOR, "div.cal-item")
+    if not calendar_items:
+        logging.info("No calendar items found")
+        return team_results_dict, school_name
     for item in calendar_items:
         try:
             meet_link = item.find_element(By.CSS_SELECTOR, "a.fa-list-ol")
