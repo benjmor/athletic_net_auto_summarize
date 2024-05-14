@@ -1,0 +1,4 @@
+# This workflow will:
+# 1. Build the Scraper Lambda using Docker
+# 2. Deploy the Terraform resources to AWS
+# TODO - implementation
