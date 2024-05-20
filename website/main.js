@@ -34,10 +34,10 @@ function submitForm() {
     .then(data => {
         // Display the response
         file_content = data['file_content']
-        gpt_content = data['gpt_content'].replace(/\n/g, "\n\n"); // more newlines!
+        llm_content = data['llm_content'].replace(/\n/g, "\n\n"); // more newlines!
         numbered_list_prompt_content = data['numbered_list_prompt_content']
         display_md = "<md-block>" + "## Meet Summary:\n" + file_content + 
-                     "\n## Prompt passed to Claude:\n" + gpt_content + "\n" + 
+                     "\n## Prompt passed to Claude:\n" + llm_content + "\n" + 
                      "\n## Line-by-Line prompt passed to Claude:\n" + numbered_list_prompt_content + "</md-block>";
         document.getElementById('responseContainer').innerHTML = display_md;
     })

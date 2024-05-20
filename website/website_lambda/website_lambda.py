@@ -167,7 +167,7 @@ def lambda_handler(event, context):
         school_id
     )  # TODO - get the school name from its ID, or pull it from a DDB I maintain
     file_path_to_find_or_create = f"{tournament_id}/{school_name}/results.txt"
-    raw_gpt_submission = f"{tournament_id}/{school_name}/gpt_prompt.txt"
+    raw_llm_submission = f"{tournament_id}/{school_name}/llm_prompt.txt"
     api_response_key = f"{tournament_id}/api_response.json"
     numbered_list_prompt_path = (
         f"{tournament_id}/{school_name}/numbered_list_prompt.txt"
@@ -178,16 +178,16 @@ def lambda_handler(event, context):
     # Check if the requested results already exist -- return them if they do
     if len(school_name) > 0:  # explicitly skip empty names -- they are trouble.
         try:
-            gpt_content = (
+            llm_content = (
                 s3_client.get_object(
                     Bucket=bucket_name,
-                    Key=raw_gpt_submission,
+                    Key=raw_llm_submission,
                 )["Body"]
                 .read()
                 .decode("utf-8")
             )
         except Exception:
-            gpt_content = None
+            llm_content = None
         try:
             numbered_list_prompt_content = (
                 s3_client.get_object(
@@ -199,7 +199,7 @@ def lambda_handler(event, context):
             )
         except Exception:
             numbered_list_prompt_content = None
-        if gpt_content is not None:
+        if llm_content is not None:
             try:
                 file_content = (
                     s3_client.get_object(
@@ -212,7 +212,7 @@ def lambda_handler(event, context):
             except Exception as ex:
                 try:
                     file_content = send_prompt_to_llm_and_save_to_s3(
-                        prompt=gpt_content,
+                        prompt=llm_content,
                         s3_client=s3_client,
                         bucket_name=bucket_name,
                         key=file_path_to_find_or_create,
@@ -229,7 +229,7 @@ def lambda_handler(event, context):
                     {
                         "file_content": file_content
                         + "\n\nMore information about forensics (including how to compete, judge, or volunteer) can be found at [www.speechanddebate.org](www.speechanddebate.org), or by reaching out to the school's coach.",
-                        "gpt_content": gpt_content,
+                        "llm_content": llm_content,
                         "numbered_list_prompt_content": numbered_list_prompt_content,
                     }
                 ),
@@ -253,7 +253,7 @@ def lambda_handler(event, context):
     #             "body": json.dumps(
     #                 {
     #                     "file_content": "API response is too large. Please reach out to the Issues page at https://github.com/benjmor/tabroom_auto_summarize/issues to request results for large tournaments.",
-    #                     "gpt_content": "N/A",
+    #                     "llm_content": "N/A",
     #                     "numbered_list_prompt_content": numbered_list_prompt_content,
     #                 }
     #             ),
@@ -325,7 +325,7 @@ def lambda_handler(event, context):
                 "body": json.dumps(
                     {
                         "file_content": school_data,
-                        "gpt_content": "N/A",
+                        "llm_content": "N/A",
                         "numbered_list_prompt_content": "N/A",
                     }
                 ),
@@ -341,7 +341,7 @@ def lambda_handler(event, context):
                         + "Check that your school name matches the official name. "
                         + f"Schools with results:\n\n{school_data}"
                     ),
-                    "gpt_content": "N/A",
+                    "llm_content": "N/A",
                     "numbered_list_prompt_content": numbered_list_prompt_content,
                 }
             ),
@@ -360,7 +360,7 @@ def lambda_handler(event, context):
     #         "body": json.dumps(
     #             {
     #                 "file_content": "ERROR - The tournament ID appears to be invalid or finish in the future.",
-    #                 "gpt_content": "N/A",
+    #                 "llm_content": "N/A",
     #                 "numbered_list_prompt_content": numbered_list_prompt_content,
     #             }
     #         ),
@@ -385,7 +385,7 @@ def lambda_handler(event, context):
             {
                 "file_content": "Results not yet generated, will attempt to generate them. Check back in about 15 minutes."
                 + "\n\nNote: Huge tournaments (eg. Harvard) are not supported through this web interface. Create an Issue [here](https://github.com/benjmor/tabroom_auto_summarize/issues) if you want results from a specific large tournament.",
-                "gpt_content": "N/A",
+                "llm_content": "N/A",
                 "numbered_list_prompt_content": numbered_list_prompt_content,
             }
         ),

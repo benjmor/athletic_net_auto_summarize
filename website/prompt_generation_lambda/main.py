@@ -2,7 +2,7 @@ import argparse
 import boto3
 import logging
 import os
-from website.prompt_generation_lambda.athletic_net_summarize import main
+from athletic_net_summarize import main
 
 """
 This is the main routine for the Athletic.net Summary Lambda. It will query Athletic.net for the meet results and then
@@ -24,20 +24,20 @@ def handler(event, context):
     try:
         boto3.client("sns").publish(
             TopicArn=os.environ["SNS_TOPIC_ARN"],
-            Message=f"Running tabroom_summary for {event['tournament']}; requested school is {event['school']}",
+            Message=f"Running Athletic.net summary for {event['tournament']}; requested school is {event['school']}",
         )
     except Exception:
         logging.error("Error publishing to SNS")
 
     # Generate a Tabroom summary
-    tournament_id = event["tournament"]
-    event_context = event.get("context", "")
+    meet_id = event["meet_id"]
     percentile_minimum = event.get("percentile_minimum", 25)
     response = main.main(
-        tournament_id=tournament_id,
+        school_id=school_id,
         data_bucket=os.getenv("DATA_BUCKET_NAME", DATA_BUCKET),
-        context=event_context,
+        meet_id=meet_id,
         percentile_minimum=percentile_minimum,
+        sport_name=event["sport_name"],
     )
 
     # Save the result outputs
@@ -45,54 +45,59 @@ def handler(event, context):
     if running_outside_of_lambda:
         # Make the directories as needed
         for school_name in response.keys():
-            os.makedirs(f"{tournament_id}/{school_name}", exist_ok=True)
-            if "gpt_prompt" in response[school_name]:
-                with open(f"{tournament_id}/{school_name}/gpt_prompt.txt", "w") as f:
-                    f.write(response[school_name]["gpt_prompt"])
+            os.makedirs(f"{meet_id}/{school_name}", exist_ok=True)
+            if "llm_prompt" in response[school_name]:
+                with open(f"{meet_id}/{school_name}/llm_prompt.txt", "w") as f:
+                    f.write(response[school_name]["llm_prompt"])
     else:
         # Save the tournament results to S3
         s3_client = boto3.client("s3")
         bucket_name = os.environ["DATA_BUCKET_NAME"]
         for school_name in response.keys():
-            if "gpt_prompt" in response[school_name]:
+            if "llm_prompt" in response[school_name]:
                 s3_client.put_object(
-                    Body=response[school_name]["gpt_prompt"],
+                    Body=response[school_name]["llm_prompt"],
                     Bucket=bucket_name,
-                    Key=f"{tournament_id}/{school_name}/gpt_prompt.txt",
+                    Key=f"{meet_id}/{school_name}/llm_prompt.txt",
                 )
             if "numbered_list_prompt" in response[school_name]:
                 s3_client.put_object(
                     Body=response[school_name]["numbered_list_prompt"],
                     Bucket=bucket_name,
-                    Key=f"{tournament_id}/{school_name}/numbered_list_prompt.txt",
+                    Key=f"{meet_id}/{school_name}/numbered_list_prompt.txt",
                 )
         try:
             # Delete the placeholder to signal to the Lambda that execution is complete
             s3_client.delete_object(
-                Bucket=bucket_name, Key=f"{tournament_id}/placeholder.txt"
+                Bucket=bucket_name, Key=f"{meet_id}/placeholder.txt"
             )
         except Exception:
             pass
 
 
 if __name__ == "__main__":
-    os.environ["SNS_TOPIC_ARN"] = (
-        "arn:aws:sns:us-east-1:238589881750:athletic_net_summary_generation_topic"
-    )
-    # Create an argparse for tournament ID and readonly
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-t",
-        "--tournament-id",
-        help="Tournament ID (typically a 5-digit number) of the tournament you want to generate results for.",
+        "-m",
+        "--meet-id",
+        help="Meet ID (typically a 6-digit number) of the meet you want to generate results for.",
         required=False,  # TODO - require again
-        default="28740",
+        default="523486",
+    )
+    parser.add_argument(
+        "-s",
+        "--school-id",
+        help="School ID (typically a 2-6-digit number) of the meet you want to generate results for.",
+        required=False,  # TODO - require again
+        default="807",
     )
     args = parser.parse_args()
-    tournament_id = args.tournament_id
+    meet_id = args.meet_id
+    school_id = args.school_id
     event = {
-        "tournament": tournament_id,  # "30799",  # "29810",  # "20134",
-        # "context": "This tournament is the California State Championship, which requires students to qualify to the tournament from their local region. Round 4 of Congress and speech events is the semifinal round. Round 5 of Congress and speech events is the final round. In debate events, there are 4 preliminary rounds, followed by elimination rounds. All rounds were judged by panels of judges who each evaluated competitors and submitted an independent ballot.",  # CHSSA-specific
-        "percentile_minimum": 0,  # CHSSA championship -- should include all results
+        "meet_id": meet_id,
+        "school_id": school_id,
+        "sport_name": "track-and-field-outdoor",
+        # "percentile_minimum": 0,
     }
     handler(event, {})
