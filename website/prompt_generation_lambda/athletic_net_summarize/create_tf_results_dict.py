@@ -8,6 +8,8 @@ from selenium.webdriver.common.by import By
 def create_tf_results_dict(
     event_elements: List[WebElement],
 ):
+    # TODO - This is getting a lot of parsing wrong. Find out why.
+    # It is probably related to the enumerate() usage
     """
     This takes a webdriver pointed to races and returns a dict with the following structure (note that team results are handled separately from event results in track):
     {
@@ -19,9 +21,11 @@ def create_tf_results_dict(
                     "grade": str,
                     "name": str,
                     "mark": str,
-                    "school_name": str,
+                    "school": str,
                     "gender": str,
                     "race_name": str,
+                    "is_personal_best": str,
+                    "is_season_best": str,
                 },
                 ...
             ]
@@ -57,6 +61,15 @@ def create_tf_results_dict(
                 parsed_individual_result = individual_result.find_elements(
                     By.TAG_NAME, "td"
                 )
+                # Skip DNS and DNF
+                try:
+                    if (
+                        parsed_individual_result[4].text == "DNS"
+                        or parsed_individual_result[4].text == "DNF"
+                    ):
+                        continue
+                except IndexError:
+                    continue
                 placement_string = f"{parsed_individual_result[0].text.replace('.', '')}/{total_participants}"
                 try:
                     percentile = 100 - int(
@@ -76,11 +89,16 @@ def create_tf_results_dict(
                             "grade": parsed_individual_result[1].text,
                             "name": parsed_individual_result[2].text,
                             "mark": parsed_individual_result[4].text,
-                            "school": parsed_individual_result[6].text,
+                            "school": parsed_individual_result[5].text,
                             "gender": gender,
                             "race_name": race_name,
-                            # "is_personal_best": bool(check_pb())
-                            # "is_season_best": bool(check_sb())
+                            "is_personal_best": str(
+                                bool(parsed_individual_result[4].text[-2:] == "PR")
+                            ),
+                            "is_season_best": str(
+                                bool(parsed_individual_result[4].text[-2:] == "PR")
+                                or bool(parsed_individual_result[4].text[-2:] == "SR")
+                            ),
                         }
                     )
                 except:

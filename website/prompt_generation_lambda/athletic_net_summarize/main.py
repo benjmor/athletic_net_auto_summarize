@@ -5,7 +5,7 @@ import logging
 from .get_parser import get_parser
 from .get_meet_results_wrapper import get_meet_results_wrapper
 from .generate_llm_article import generate_llm_article
-
+from .group_results_by_team import group_results_by_team
 logging.basicConfig(level=logging.INFO)
 
 
@@ -27,17 +27,20 @@ def main(
         sport_name_proper = "Cross Country"
     else:
         sport_name_proper = "Track And Field"
-    results = get_meet_results_wrapper(
+    event_results = get_meet_results_wrapper(
         sport_name=sport_name,
         meet_id=meet_id,
     )
-    for result in results.keys():
-        meet_location = results[result]["meet_location"]
-        meet_date = results[result]["meet_date"]
+    meet_name = event_results.get("meet_name", "Track Meet!")
+    meet_location = event_results.get("meet_location", "USA")
+    meet_date = event_results.get("meet_date", "2024") # TODO - fix
+    team_grouped_results = group_results_by_team(event_results)
+    for school in team_grouped_results.keys():
         generate_llm_article(
-            results=results[result],
+            results=team_grouped_results[school],
             sport_name_proper=sport_name_proper,
-            meet_name=result,
+            school_name=school,
+            meet_name=meet_name,
             meet_location=meet_location,
             meet_date=meet_date,
             meet_id=meet_id,

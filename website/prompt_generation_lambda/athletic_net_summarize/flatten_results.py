@@ -3,17 +3,32 @@ import logging
 
 def flatten_results(results):
     """
-    Takes in a dict of results and flattens it to a list of strings
+    Takes in a dict of results and flattens it to a list of strings matching the headers defined at the top of the function
     """
     logging.info("Flattening results data...")
     output = []
-    TEAM_RESULT_HEADER = "race_name|rank_among_scoring_teams|points"
-    INDIVIDUAL_RESULT_HEADER = "race_name|placement|percentile|grade|name|time|school"
-    for result in results.keys():
-        if not isinstance(results[result], dict):
+    TEAM_RESULT_HEADER_KEYS = [
+        "race_name",
+        "rank_among_scoring_teams",
+        "points",
+    ]
+    INDIVIDUAL_RESULT_HEADER_KEYS = [
+        "name",
+        "gender",
+        "race_name",
+        "placement",
+        "percentile",
+        "grade",
+        "mark",
+        "is_personal_best",
+        "is_season_best",
+    ]
+    for result in results:
+        if not isinstance(result, dict):
             continue
+        # TODO - This needs some work to meet the new model
         if "team_result" in results[result]:
-            output.append(TEAM_RESULT_HEADER)
+            output.append("|".join(TEAM_RESULT_HEADER_KEYS))
             team_data = f"{result}|{results[result]['team_result']['rank_of_scoring_teams']}|{results[result]['team_result']['school_name']}|{results[result]['team_result']['points']}"
             output.append(team_data)
             for rival_result in ["worse_rival_result", "better_rival_result"]:
@@ -24,8 +39,13 @@ def flatten_results(results):
             "individual_results" in results[result]
             and results[result]["individual_results"]
         ):
-            output.append(INDIVIDUAL_RESULT_HEADER)
-            for individual_result in results[result]["individual_results"]:
-                individual_data = f"{result}|{individual_result['placement']}|{individual_result['percentile']}|{individual_result['grade']}|{individual_result['name']}|{individual_result['time']}|{individual_result['school']}"
-                output.append(individual_data)
+            output.append("|".join(INDIVIDUAL_RESULT_HEADER_KEYS))
+            individual_data_string = ""
+            for header_key in INDIVIDUAL_RESULT_HEADER_KEYS:
+                if header_key not in result:
+                    individual_data_string = "|".join(individual_data_string, "")
+                individual_data_string = "|".join(
+                    individual_data_string, {result[header_key]}
+                )
+            output.append(individual_data_string)
     return output

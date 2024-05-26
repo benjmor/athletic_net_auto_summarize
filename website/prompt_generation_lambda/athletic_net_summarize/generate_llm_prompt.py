@@ -7,9 +7,9 @@ def generate_llm_prompt(
     meet_name,
     meet_location,
     meet_id,
+    school_name,
     custom_url=None,
     quote_dict=None,
-    school_name="This School",
 ):
     logging.info(f"Generating LLM prompt for {meet_name}")
     if custom_url:
@@ -20,7 +20,7 @@ def generate_llm_prompt(
     else:
         follow_up_url = "https://www.athletic.net"
     llm_basic_prompt = f"""
-The following data represents results of a high school {sport_name_proper} meet called {meet_name} held at {meet_location}, on {meet_date}.
+The following data represents results of a high school {sport_name_proper.lower()} meet called {meet_name} held at {meet_location}, on {meet_date}.
 
 Write a 3 paragraph summary for the {school_name} High School newspaper summarizing the meet. Use as many student names of {school_name} students as reasonable.
 
@@ -37,5 +37,7 @@ The team data includes information about schools that did one rank better or wor
     """
     if sport_name_proper == "Cross Country":
         llm_payload = [llm_basic_prompt, cross_country_addendum]
+    else:
+        llm_payload = [llm_basic_prompt]
 
     return llm_payload

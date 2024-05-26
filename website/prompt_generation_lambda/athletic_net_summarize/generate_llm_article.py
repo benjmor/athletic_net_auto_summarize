@@ -6,7 +6,7 @@ from .flatten_results import flatten_results
 
 def generate_llm_article(
     results,
-    # school_name,
+    school_name,
     sport_name_proper,
     meet_name,
     meet_location,
@@ -17,7 +17,7 @@ def generate_llm_article(
 ):
     llm_payload = generate_llm_prompt(
         sport_name_proper=sport_name_proper,
-        # school_name=school_name,
+        school_name=school_name,
         custom_url=custom_url,
         quote_dict=quote_dict,
         meet_name=meet_name,

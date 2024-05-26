@@ -21,7 +21,14 @@ def get_meet_results(
     location_override: str = None,
 ):
     """
-    This function takes in a Selenium WebDriver instance and a URL and returns a dictionary of meet results for all schools attending the meet.
+    This function takes in a Selenium WebDriver instance and a URL and returns a dictionary of meet results.
+
+    The meet results dictionary contains the following keys:
+    - meet_location: The location of the meet
+    - meet_date: The date of the meet
+    - results: A dictionary containing the results of the meet
+        - Each key in the results dictionary is an event name
+            - Entries within the event's values will be individual performances
     """
     return_dict = {}
     driver.get(url)
@@ -37,10 +44,9 @@ def get_meet_results(
         )
 
     if location_override:
-        meet_location = location_override
+        return_dict["meet_location"] = location_override
     else:
-        meet_location = get_meet_location(driver, url)
-    return_dict["meet_location"] = meet_location
+        return_dict["meet_location"] = get_meet_location(driver, url)
     return_dict["meet_date"] = get_meet_date(driver)
 
     if re.search(r"CrossCountry", url):

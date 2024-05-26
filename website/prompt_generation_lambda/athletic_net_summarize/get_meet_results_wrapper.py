@@ -12,7 +12,7 @@ def get_meet_results_wrapper(
     location_override=None,
     number_of_teams_override=None,
 ):
-    team_results_dict = {}
+    event_results_dict = {}
     chrome_options = Options()
     chrome_options.add_argument("--headless=new")
     chrome_options.add_experimental_option("excludeSwitches", ["enable-logging"])
@@ -28,11 +28,11 @@ def get_meet_results_wrapper(
     else:
         sport_name_proper_nospace = "TrackAndField"
 
-    team_results_dict = get_meet_results(
+    event_results_dict = get_meet_results(
         driver=results_browser,
         url=f"https://www.athletic.net/{sport_name_proper_nospace}/meet/{meet_id}/results/all",
         location_override=location_override,
     )
     # Close the browser session
     browser.quit()
-    return team_results_dict
+    return event_results_dict
