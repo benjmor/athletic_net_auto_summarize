@@ -47,8 +47,16 @@ def group_results_by_team(results):
         if "individual_results" not in results[result]:
             continue
         for individual_result in results[result]["individual_results"]:
+            if individual_result is None:
+                continue
             team = individual_result.pop("school")
             if team not in team_grouped_results:
-                team_grouped_results[team] = []
-            team_grouped_results[team].append(individual_result)
+                team_grouped_results[team] = {"individual_results": []}
+            team_grouped_results[team]["individual_results"].append(individual_result)
+    # Sort each team's results by the percentile of the result
+    for team in team_grouped_results:
+        team_grouped_results[team]["individual_results"].sort(
+            key=lambda x: x["percentile"],
+            reverse=True,
+        )
     return team_grouped_results

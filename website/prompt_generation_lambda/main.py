@@ -60,6 +60,7 @@ def handler(event, context):
                     Bucket=bucket_name,
                     Key=f"{meet_id}/{school_name}/llm_prompt.txt",
                 )
+            # TODO - Add numbered list prompts
             if "numbered_list_prompt" in response[school_name]:
                 s3_client.put_object(
                     Body=response[school_name]["numbered_list_prompt"],

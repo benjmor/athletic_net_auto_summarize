@@ -8,6 +8,7 @@ def generate_llm_prompt(
     meet_location,
     meet_id,
     school_name,
+    percentile_minimum=50,
     custom_url=None,
     quote_dict=None,
 ):
@@ -24,7 +25,7 @@ The following data represents results of a high school {sport_name_proper.lower(
 
 Write a 3 paragraph summary for the {school_name} High School newspaper summarizing the meet. Use as many student names of {school_name} students as reasonable.
 
-Include individuals' times and ranks if they are in the 80th percentile or higher. However, don't include raw percentile information in the output, just times and ranks.
+Include individuals' times and ranks if they are in the {percentile_minimum}th percentile or higher. However, don't include raw percentile information in the output, just times and ranks.
 
 When referencing results, you should include the total number of athletes in each event, but only once per event.
 
@@ -35,8 +36,13 @@ The data includes team and individual results. In team results, more points repr
 
 The team data includes information about schools that did one rank better or worse than {school_name}, listed as better_rival and worse_rival. You can reference these schools to illustrate how {school_name} did in the meet.
     """
+    track_addendum = f"""
+All field (eg. shot put, discus, jumps, and pole vault) marks are measured in feet.
+   """
     if sport_name_proper == "Cross Country":
         llm_payload = [llm_basic_prompt, cross_country_addendum]
+    elif sport_name_proper == "Track & Field":
+        llm_payload = [llm_basic_prompt, track_addendum]
     else:
         llm_payload = [llm_basic_prompt]
 

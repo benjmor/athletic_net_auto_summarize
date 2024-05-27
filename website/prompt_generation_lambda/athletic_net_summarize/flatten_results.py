@@ -23,29 +23,26 @@ def flatten_results(results):
         "is_personal_best",
         "is_season_best",
     ]
-    for result in results:
-        if not isinstance(result, dict):
-            continue
-        # TODO - This needs some work to meet the new model
-        if "team_result" in results[result]:
-            output.append("|".join(TEAM_RESULT_HEADER_KEYS))
-            team_data = f"{result}|{results[result]['team_result']['rank_of_scoring_teams']}|{results[result]['team_result']['school_name']}|{results[result]['team_result']['points']}"
-            output.append(team_data)
-            for rival_result in ["worse_rival_result", "better_rival_result"]:
-                if rival_result in results[result]:
-                    rival_data = f"{result}|{results[result][rival_result]['rank']}|{results[result][rival_result]['school_name']}|{results[result][rival_result]['points']}|{rival_result.replace('_result', '')}"
-                    output.append(rival_data)
-        if (
-            "individual_results" in results[result]
-            and results[result]["individual_results"]
-        ):
-            output.append("|".join(INDIVIDUAL_RESULT_HEADER_KEYS))
-            individual_data_string = ""
-            for header_key in INDIVIDUAL_RESULT_HEADER_KEYS:
-                if header_key not in result:
-                    individual_data_string = "|".join(individual_data_string, "")
-                individual_data_string = "|".join(
-                    individual_data_string, {result[header_key]}
-                )
-            output.append(individual_data_string)
+    if "team_results" in results:
+        output.append("|".join(TEAM_RESULT_HEADER_KEYS))
+    for team_result in results.get("team_results", []):
+        # TODO - fix XC handling -- look at TF handling below
+        team_data = f"{team_result['event_name']}|{team_result['team_result']['rank_of_scoring_teams']}|{team_result['team_result']['school_name']}|{team_result['team_result']['points']}"
+        output.append(team_data)
+        for rival_result in ["worse_rival_result", "better_rival_result"]:
+            if rival_result in team_result:
+                rival_data = f"{team_result['event_name']}|{team_result[rival_result]['rank']}|{team_result[rival_result]['school_name']}|{team_result[rival_result]['points']}|{rival_result.replace('_result', '')}"
+                output.append(rival_data)
+    if "individual_results" in results:
+        output.append("|".join(INDIVIDUAL_RESULT_HEADER_KEYS))
+    for individual_result in results.get("individual_results", []):
+        individual_data_string = ""
+        for header_key in INDIVIDUAL_RESULT_HEADER_KEYS:
+            if individual_data_string == "":
+                individual_data_string = individual_result.get(header_key, "")
+                continue
+            individual_data_string = "|".join(
+                [individual_data_string, str(individual_result.get(header_key, ""))]
+            )
+        output.append(individual_data_string)
     return output

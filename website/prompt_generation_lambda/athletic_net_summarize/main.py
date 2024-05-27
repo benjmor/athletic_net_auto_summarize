@@ -6,6 +6,7 @@ from .get_parser import get_parser
 from .get_meet_results_wrapper import get_meet_results_wrapper
 from .generate_llm_article import generate_llm_article
 from .group_results_by_team import group_results_by_team
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -33,10 +34,12 @@ def main(
     )
     meet_name = event_results.get("meet_name", "Track Meet!")
     meet_location = event_results.get("meet_location", "USA")
-    meet_date = event_results.get("meet_date", "2024") # TODO - fix
+    meet_date = event_results.get("meet_date", "2024")  # TODO - fix
     team_grouped_results = group_results_by_team(event_results)
+    llm_prompts_by_school = {}
     for school in team_grouped_results.keys():
-        generate_llm_article(
+        llm_prompts_by_school[school] = {}
+        llm_prompts_by_school[school]["llm_prompt"] = generate_llm_article(
             results=team_grouped_results[school],
             sport_name_proper=sport_name_proper,
             school_name=school,
@@ -45,6 +48,7 @@ def main(
             meet_date=meet_date,
             meet_id=meet_id,
         )
+    return llm_prompts_by_school
 
 
 if __name__ == "__main__":

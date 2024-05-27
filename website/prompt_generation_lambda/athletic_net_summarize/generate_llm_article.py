@@ -27,4 +27,4 @@ def generate_llm_article(
     ) + flatten_results(results)
     final_llm_payload = "\r\n".join(llm_payload)
     logging.info(f"Submitting this payload to the LLM:\n {final_llm_payload}")
-    # TODO - Send to LLM and return the result
+    return final_llm_payload

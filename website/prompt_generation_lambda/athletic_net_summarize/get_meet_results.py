@@ -8,6 +8,7 @@ import re
 
 from .get_meet_location import get_meet_location
 from .get_meet_date import get_meet_date
+from .get_meet_name import get_meet_name
 from .create_xc_results_dict import create_xc_results_dict
 from .create_tf_results_dict import create_tf_results_dict
 
@@ -46,8 +47,9 @@ def get_meet_results(
     if location_override:
         return_dict["meet_location"] = location_override
     else:
-        return_dict["meet_location"] = get_meet_location(driver, url)
+        return_dict["meet_location"] = get_meet_location(driver)
     return_dict["meet_date"] = get_meet_date(driver)
+    return_dict["meet_name"] = get_meet_name(driver)
 
     if re.search(r"CrossCountry", url):
         # Find the element with class="mt-2 ng-star-inserted" using find_element_by_css_selector
