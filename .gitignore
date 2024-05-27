@@ -1,2 +1,7 @@
 *.pyc
 *.txt
+*.hcl
+*.zip
+*.tfstate
+*.exe
+.serverless

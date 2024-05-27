@@ -15,6 +15,10 @@ def generate_llm_article(
     custom_url=None,
     quote_dict=None,
 ):
+    # Truncate results to top 15 performances
+    if len(results) > 15:
+        results = results[:15]
+    # Generate LLM prompts
     llm_payload = generate_llm_prompt(
         sport_name_proper=sport_name_proper,
         school_name=school_name,

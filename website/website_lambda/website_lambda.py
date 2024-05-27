@@ -133,15 +133,6 @@ def send_prompt_to_llm_and_save_to_s3(
     return full_response
 
 
-def tournament_is_invalid(response_content):
-    return False  # Assume function is NOT invalid
-    # TODO - Add validation function
-    # results_tab_does_not_exist(response_content)
-    # tournament_year = "blah"
-    # tournament_month_and_date = "blah"
-    # tournament_is_still_ongoing(response_content)
-
-
 def get_school_name(school_id):
     """
     This function will return the school name from the request body.

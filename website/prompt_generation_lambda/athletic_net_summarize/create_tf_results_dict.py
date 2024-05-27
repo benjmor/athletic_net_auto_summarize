@@ -131,7 +131,6 @@ def create_tf_results_dict(
             # Individual Scoring Logic
             individual_results = event_results[index]
             # Relay events have a table within a table.
-            # TODO - This needs to be thought through more thoroughly
             is_relay = bool(
                 individual_results.find_element(
                     By.TAG_NAME,

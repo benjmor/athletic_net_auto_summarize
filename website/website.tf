@@ -41,16 +41,6 @@ resource "aws_s3_object" "website_functions" {
   # content_type = "text/html"
 }
 
-resource "aws_s3_object" "website_css" {
-  depends_on = [aws_s3_bucket.website_bucket]
-  bucket     = local.website_bucket_name
-  key        = "stylesheet.css"
-  source     = "${path.module}/stylesheet.css"
-  etag       = filemd5("${path.module}/stylesheet.css")
-
-  # content_type = "text/html"
-}
-
 resource "aws_s3_bucket_policy" "public_access_to_website" {
   depends_on = [aws_s3_bucket_public_access_block.website_bucket]
   bucket     = aws_s3_bucket.website_bucket.id
@@ -85,7 +75,18 @@ resource "aws_route53_record" "my_domain_a_record" {
   alias {
     name                   = aws_s3_bucket_website_configuration.website_bucket.website_endpoint
     zone_id                = aws_s3_bucket.website_bucket.hosted_zone_id
-    evaluate_target_health = true
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "public_domain_a_record" {
+  zone_id = "Z0682606HAKVORP7INUJ" # Public DNS Zone - TODO - remove hardcoding
+  name    = local.domain_name
+  type    = "A"
+  alias {
+    name                   = aws_s3_bucket_website_configuration.website_bucket.website_endpoint
+    zone_id                = aws_s3_bucket.website_bucket.hosted_zone_id
+    evaluate_target_health = false
   }
 }
 

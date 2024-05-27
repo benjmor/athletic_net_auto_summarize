@@ -4,7 +4,7 @@
 #############################################################
 # IAM Role for Lambda function
 resource "aws_iam_role" "lambda_role" {
-  name = "lambda_execution_role"
+  name = "athleticsummary_lambda_execution_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -31,7 +31,7 @@ resource "aws_iam_role_policy" "lambda_s3_writes" {
 }
 
 resource "aws_lambda_function" "api_lambda_function" {
-  function_name = "api_lambda_function"
+  function_name = "athleticsummary_api_lambda_function"
   runtime       = "python3.12"
   handler       = "lambda_handler.lambda_handler"
   role          = aws_iam_role.lambda_role.arn
@@ -47,8 +47,8 @@ resource "aws_lambda_function" "api_lambda_function" {
 }
 
 resource "aws_api_gateway_rest_api" "website_api" {
-  name        = "website_api"
-  description = "API for the website"
+  name        = "athletic_summary_website_api"
+  description = "API for the athletic summary website"
 
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -89,6 +89,7 @@ resource "aws_api_gateway_integration" "api_integration" {
   uri                     = aws_lambda_function.api_lambda_function.invoke_arn
 }
 
+# This requires the serverless Lambda to be deployed first.
 resource "aws_api_gateway_integration_response" "api_integration_response" {
   rest_api_id = aws_api_gateway_rest_api.website_api.id
   resource_id = aws_api_gateway_resource.api_resource.id
@@ -123,7 +124,7 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment" {
 
 # This is now deployed via Serverless but we still need the role
 resource "aws_iam_role" "summary_lambda_role" {
-  name = "summary_lambda_role"
+  name = "athletic_summary_lambda_role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",

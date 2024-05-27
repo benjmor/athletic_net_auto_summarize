@@ -6,13 +6,12 @@ function submitForm() {
     const schoolId = document.getElementById('schoolId').value;
 
     // Validate tournament number format
-    // TODO - Fix the regexes for the variety of IDs allowed
     if (!/^\d{6}$/.test(meetId) || (meetId == "00000")) {  
-        alert('Please enter a valid 5-digit number for the Tournament Number.');
+        alert('Please enter a valid 6-digit number for the Meet ID.');
         return;
     }
-    if (!/^\d{3}$/.test(schoolId) || (schoolId == "00000")) {
-        alert('Please enter a valid 5-digit number for the Tournament Number.');
+    if (!/^\d{3,6}$/.test(schoolId) || (schoolId == "00000")) {
+        alert('Please enter a valid 3-to-6-digit number for the School ID.');
         return;
     }
 
@@ -23,7 +22,8 @@ function submitForm() {
     };
 
     // Perform a POST request to the API Gateway endpoint to send the request
-    fetch('https://TODOTODO.execute-api.us-east-1.amazonaws.com/prod/submit_meet', {
+    // Had to manually update after deploying the API GW
+    fetch('https://kkl9wqaqpk.execute-api.us-east-1.amazonaws.com/prod/submit_meet', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

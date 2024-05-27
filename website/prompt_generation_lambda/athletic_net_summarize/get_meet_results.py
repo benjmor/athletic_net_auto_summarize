@@ -56,10 +56,10 @@ def get_meet_results(
         elements = driver.find_elements(
             By.CSS_SELECTOR, "*.col-sm-6.mb-3.mb-sm-0.ng-star-inserted"
         )
-        return create_xc_results_dict(elements)
+        return return_dict.update(create_xc_results_dict(elements))
     elif re.search(r"Track", url):
         # Find the element with class="mt-2 ng-star-inserted" using find_element_by_css_selector
         elements = driver.find_elements(
             By.CSS_SELECTOR, "*.col-lg-6.mb-3.mb-sm-0.ng-star-inserted"
         )
-        return create_tf_results_dict(elements)
+        return return_dict.update(create_tf_results_dict(elements))
