@@ -4,22 +4,31 @@ function submitForm() {
     // Get form data
     const meetId = document.getElementById('meetId').value;
     const schoolId = document.getElementById('schoolId').value;
+    const sportName = document.querySelector('input[name="sportName"]:checked');
 
     // Validate tournament number format
     if (!/^\d{6}$/.test(meetId) || (meetId == "00000")) {  
         alert('Please enter a valid 6-digit number for the Meet ID.');
         return;
     }
-    if (!/^\d{3,6}$/.test(schoolId) || (schoolId == "00000")) {
-        alert('Please enter a valid 3-to-6-digit number for the School ID.');
+    // Validate school name length
+    if (schoolId.length > 50) {
+        alert('Please enter a school name with 50 characters or less.');
         return;
+    }
+    if (sportName) {
+        console.log('Selected sport:', sportName.value);
+    } else {
+        alert('Please select a sport.');
     }
 
     // Create a JSON object with the form data
     const formData = {
-        meet: meetId,
-        school: schoolId
+        "meet_id": meetId,
+        "school_id": schoolId,
+        "sport_name": sportName.value
     };
+    console.log(formData);
 
     // Perform a POST request to the API Gateway endpoint to send the request
     // Had to manually update after deploying the API GW

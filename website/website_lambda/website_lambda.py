@@ -137,6 +137,7 @@ def get_school_name(school_id):
     """
     This function will return the school name from the request body.
     """
+    # TODO - Make it better!
     return school_id
 
 
@@ -147,23 +148,23 @@ def lambda_handler(event, context):
         "Access-Control-Allow-Headers": "Content-Type",
         "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
     }
+    if event.get("body", None) is None:
+        return {"statusCode": 400, "headers": cors_headers, "body": "No body"}
 
     # Do some data validation -- ensure that the number is 5 digits and the school name is 50 characters or less
     s3_client = boto3.client("s3")
     parsed_body = json.loads(event["body"])
     parsed_body["read_only"] = os.getenv("READ_ONLY", True)
-    tournament_id = parsed_body["meet"]
-    school_id = str(parsed_body["school"]).strip()
+    meet_id = parsed_body["meet_id"]
+    school_id = str(parsed_body["school_id"]).strip()
     school_name = get_school_name(
         school_id
     )  # TODO - get the school name from its ID, or pull it from a DDB I maintain
-    file_path_to_find_or_create = f"{tournament_id}/{school_name}/results.txt"
-    raw_llm_submission = f"{tournament_id}/{school_name}/llm_prompt.txt"
-    api_response_key = f"{tournament_id}/api_response.json"
-    numbered_list_prompt_path = (
-        f"{tournament_id}/{school_name}/numbered_list_prompt.txt"
-    )
-    bucket_name = os.getenv("DATA_BUCKET_NAME", "tabroom-summaries-data-bucket")
+    file_path_to_find_or_create = f"{meet_id}/{school_name}/results.txt"
+    raw_llm_submission = f"{meet_id}/{school_name}/llm_prompt.txt"
+    api_response_key = f"{meet_id}/api_response.json"
+    numbered_list_prompt_path = f"{meet_id}/{school_name}/numbered_list_prompt.txt"
+    bucket_name = os.getenv("DATA_BUCKET_NAME", "athletic-net-summaries-data-bucket")
     numbered_list_prompt_content = None
 
     # Check if the requested results already exist -- return them if they do
@@ -219,7 +220,7 @@ def lambda_handler(event, context):
                 "body": json.dumps(
                     {
                         "file_content": file_content
-                        + "\n\nMore information about forensics (including how to compete, judge, or volunteer) can be found at [www.speechanddebate.org](www.speechanddebate.org), or by reaching out to the school's coach.",
+                        + "\n\nMore information about upcoming track meets can be found at [www.athletic.net](www.athletic.net), or by reaching out to the school's coach.",
                         "llm_content": llm_content,
                         "numbered_list_prompt_content": numbered_list_prompt_content,
                     }
@@ -255,7 +256,7 @@ def lambda_handler(event, context):
     # Check if there are any files in the path bucket_name/tournament_id
     all_objects = s3_client.list_objects_v2(
         Bucket=bucket_name,
-        Prefix=tournament_id,
+        Prefix=meet_id,
     )
     # If there are no files at all, then skip this section and kick off a results generation
     if all_objects["KeyCount"] > 0:
@@ -264,7 +265,7 @@ def lambda_handler(event, context):
         try:
             placeholder_attributes = s3_client.get_object_attributes(
                 Bucket=bucket_name,
-                Key=f"{tournament_id}/placeholder.txt",
+                Key=f"{meet_id}/placeholder.txt",
                 ObjectAttributes=["ObjectSize"],
             )
         except Exception as ex:
@@ -294,18 +295,18 @@ def lambda_handler(event, context):
                 (placeholder_attributes["LastModified"] + timedelta(hours=1))
                 > datetime.now(tz=timezone.utc)
             ):
-                school_data = "Still generating results! Check back soon!\nConsider opening a GitHub issue at https://github.com/benjmor/tabroom_auto_summarize/issues if this message persists."
+                school_data = "Still generating results! Check back soon!\nConsider opening a GitHub issue at https://github.com/benjmor/athletic_net_auto_summarize/issues if this message persists."
             # no school results are present AND (the placeholder file is missing or outdated) -- data should be regenerated.
             else:
                 school_data = "No schools found; will attempt to regenerate. Check back in about an hour."
                 s3_client.put_object(
                     Body="Placeholder during generation.",
                     Bucket=bucket_name,
-                    Key=f"{tournament_id}/placeholder.txt",
+                    Key=f"{meet_id}/placeholder.txt",
                 )
                 lambda_client = boto3.client("lambda")
                 lambda_client.invoke(
-                    FunctionName=os.environ["TABROOM_SUMMARY_LAMBDA_NAME"],
+                    FunctionName=os.environ["ATHLETIC_NET_SUMMARY_LAMBDA_NAME"],
                     InvocationType="Event",
                     Payload=json.dumps(parsed_body),
                 )
@@ -328,7 +329,7 @@ def lambda_handler(event, context):
             "body": json.dumps(
                 {
                     "file_content": (
-                        "Tournament exists, but school does not. "
+                        "Meet exists, but school does not. "
                         + "Check that your school name matches the official name. "
                         + f"Schools with results:\n\n{school_data}"
                     ),
@@ -360,11 +361,11 @@ def lambda_handler(event, context):
     s3_client.put_object(
         Body="Placeholder during generation.",
         Bucket=bucket_name,
-        Key=f"{tournament_id}/placeholder.txt",
+        Key=f"{meet_id}/placeholder.txt",
     )
     lambda_client = boto3.client("lambda")
     lambda_client.invoke(
-        FunctionName=os.environ["TABROOM_SUMMARY_LAMBDA_NAME"],
+        FunctionName=os.environ["ATHLETIC_NET_SUMMARY_LAMBDA_NAME"],
         InvocationType="Event",
         Payload=json.dumps(parsed_body),
     )
@@ -375,7 +376,7 @@ def lambda_handler(event, context):
         "body": json.dumps(
             {
                 "file_content": "Results not yet generated, will attempt to generate them. Check back in about 15 minutes."
-                + "\n\nNote: Huge tournaments (eg. Harvard) are not supported through this web interface. Create an Issue [here](https://github.com/benjmor/tabroom_auto_summarize/issues) if you want results from a specific large tournament.",
+                + "\n\nNote: Huge meets (eg. Penn Relays) are not supported through this web interface. Create an Issue [here]https://github.com/benjmor/athletic_net_auto_summarize/issues) if you want results from a specific large meet.",
                 "llm_content": "N/A",
                 "numbered_list_prompt_content": numbered_list_prompt_content,
             }
@@ -389,8 +390,8 @@ if __name__ == "__main__":
             {
                 "body": json.dumps(
                     {
-                        "tournament": "30430",
-                        "school": "Lynbrook",
+                        "meet_id": "807",
+                        "school_id": "523486",
                         "read_only": "True",
                     }
                 )

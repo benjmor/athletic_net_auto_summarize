@@ -17,6 +17,12 @@ def parse_individual_result(
     """
     This function will process a Selenium webdriver individual result for an event and return a dict summarizing the performance
     """
+    grade_dict = {
+        "9": "Freshman",
+        "10": "Sophomore",
+        "11": "Junior",
+        "12": "Senior",
+    }
     parsed_individual_result = individual_result.find_elements(By.TAG_NAME, "td")
     # Skip DNS, DNF, and DQs -- stored in the 4th piece for regular events, 11th for relays
     try:
@@ -67,12 +73,12 @@ def parse_individual_result(
     return {
         "placement": placement_string,
         "percentile": percentile,
-        "grade": grade,
+        "grade": grade_dict.get(grade, "N/A"),
         "name": entry_name,
         "mark": parsed_individual_result[4].text.replace("SR", "").replace("PR", ""),
         "school": school_name,
         "gender": gender,
-        "race_name": race_name,
+        "race_name": race_name.replace(" - Finals", ""),
         "is_personal_best": str(bool(parsed_individual_result[4].text[-2:] == "PR")),
         "is_season_best": str(
             bool(parsed_individual_result[4].text[-2:] == "PR")

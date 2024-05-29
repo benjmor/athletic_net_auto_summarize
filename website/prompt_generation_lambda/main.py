@@ -24,13 +24,14 @@ def handler(event, context):
     try:
         boto3.client("sns").publish(
             TopicArn=os.environ["SNS_TOPIC_ARN"],
-            Message=f"Running Athletic.net summary for {event['tournament']}; requested school is {event['school']}",
+            Message=f"Running Athletic.net summary for {event['meet_id']}; requested school is {event['school_id']}",
         )
     except Exception:
         logging.error("Error publishing to SNS")
 
     # Generate a Tabroom summary
     meet_id = event["meet_id"]
+    school_id = event["school_id"]
     percentile_minimum = event.get("percentile_minimum", 25)
     response = main.main(
         school_id=school_id,

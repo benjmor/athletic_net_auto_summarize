@@ -23,11 +23,26 @@
     Please <b>SUBMIT</b> these results to your school administrators, newspapers, social media feeds, and other relevant media!<br><br>
     </p>
     <form id="myForm">
-        <label for="schoolId">AthleticNet School ID:</label>
+        <label for="schoolId">School Name:</label>
         <input type="text" id="schoolId" name="schoolId" required>
         <br><br>
-        <label for="meetId">Meet ID (Optional):</label>
+        <label for="meetId">Athletic.Net Meet ID:</label>
         <input type="text" id="meetId" name="meetId" required>
+        <br><br>
+        <label>
+            <input type="radio" name="sportName" value="cross-country" required>
+            Cross Country
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="sportName" value="track-and-field-indoor" required>
+            Track and Field (Indoor)
+        </label>
+        <br>
+        <label>
+            <input type="radio" name="sportName" value="track-and-field-outdoor" required>
+            Track and Field (Outdoor)
+        </label>
         <br><br>
         <button type="button" onclick="submitForm()">Submit</button>
     </form>

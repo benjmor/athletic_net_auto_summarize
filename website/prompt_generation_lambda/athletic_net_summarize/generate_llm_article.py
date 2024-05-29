@@ -19,16 +19,21 @@ def generate_llm_article(
     if len(results) > 15:
         results = results[:15]
     # Generate LLM prompts
-    llm_payload = generate_llm_prompt(
-        sport_name_proper=sport_name_proper,
-        school_name=school_name,
-        custom_url=custom_url,
-        quote_dict=quote_dict,
-        meet_name=meet_name,
-        meet_location=meet_location,
-        meet_date=meet_date,
-        meet_id=meet_id,
-    ) + flatten_results(results)
+    llm_payload = (
+        generate_llm_prompt(
+            sport_name_proper=sport_name_proper,
+            school_name=school_name,
+            custom_url=custom_url,
+            quote_dict=quote_dict,
+            meet_name=meet_name,
+            meet_location=meet_location,
+            meet_date=meet_date,
+            meet_id=meet_id,
+        )
+        + "<results_table>"
+        + flatten_results(results)
+        + "</results_table>"
+    )
     final_llm_payload = "\r\n".join(llm_payload)
     logging.info(f"Submitting this payload to the LLM:\n {final_llm_payload}")
     return final_llm_payload

@@ -37,8 +37,14 @@ resource "aws_s3_object" "website_functions" {
   key        = "main.js"
   source     = "${path.module}/main.js"
   etag       = filemd5("${path.module}/main.js")
+}
 
-  # content_type = "text/html"
+resource "aws_s3_object" "website_icon" {
+  depends_on = [aws_s3_bucket.website_bucket]
+  bucket     = local.website_bucket_name
+  key        = "favicon.ico"
+  source     = "${path.module}/favicon.ico"
+  etag       = filemd5("${path.module}/favicon.ico")
 }
 
 resource "aws_s3_bucket_policy" "public_access_to_website" {
@@ -64,27 +70,31 @@ resource "aws_s3_bucket_cors_configuration" "example" {
   }
 }
 
-resource "aws_route53_zone" "my_domain" {
+# resource "aws_route53_zone" "my_domain" {
+#   name = local.domain_name
+# }
+
+# resource "aws_route53_record" "my_domain_a_record" {
+#   zone_id = aws_route53_zone.my_domain.zone_id
+#   name    = local.domain_name
+#   type    = "A"
+#   alias {
+#     name                   = aws_s3_bucket_website_configuration.website_bucket.website_endpoint
+#     zone_id                = aws_s3_bucket.website_bucket.hosted_zone_id
+#     evaluate_target_health = false
+#   }
+# }
+
+resource "aws_route53_zone" "auto_registered_domain" {
   name = local.domain_name
 }
 
-resource "aws_route53_record" "my_domain_a_record" {
-  zone_id = aws_route53_zone.my_domain.zone_id
-  name    = local.domain_name
-  type    = "A"
-  alias {
-    name                   = aws_s3_bucket_website_configuration.website_bucket.website_endpoint
-    zone_id                = aws_s3_bucket.website_bucket.hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
 resource "aws_route53_record" "public_domain_a_record" {
-  zone_id = "Z0682606HAKVORP7INUJ" # Public DNS Zone - TODO - remove hardcoding
+  zone_id = aws_route53_zone.auto_registered_domain.zone_id 
   name    = local.domain_name
   type    = "A"
   alias {
-    name                   = aws_s3_bucket_website_configuration.website_bucket.website_endpoint
+    name                   = aws_s3_bucket_website_configuration.website_bucket.website_domain
     zone_id                = aws_s3_bucket.website_bucket.hosted_zone_id
     evaluate_target_health = false
   }

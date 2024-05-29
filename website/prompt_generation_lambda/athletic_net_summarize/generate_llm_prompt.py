@@ -20,14 +20,17 @@ def generate_llm_prompt(
         follow_up_url = f"https://www.athletic.net/{sport_name_proper_no_spaces}/meet/{meet_id}/results/all"
     else:
         follow_up_url = "https://www.athletic.net"
+    meet_location = meet_location.replace(" US", "")
     llm_basic_prompt = f"""
 The following data represents results of a high school {sport_name_proper.lower()} meet called {meet_name} held at {meet_location}, on {meet_date}.
 
-Write a 3 paragraph summary for the {school_name} High School newspaper summarizing the meet. Use as many student names of {school_name} students as reasonable.
+Write a 3 paragraph summary for the {school_name} High School newspaper summarizing the meet. Use as many student names of {school_name} students as reasonable. When referencing a student for the first time, say what grade they are in.
 
-Include individuals' times and ranks if they are in the {percentile_minimum}th percentile or higher. However, don't include raw percentile information in the output, just times and ranks.
+Always include individuals' marks (times/distances) and ranks when referencing a result. However, don't include raw percentile information in the output, just times and ranks.
 
-When referencing results, you should include the total number of athletes in each event, but only once per event.
+Call out personal bests and season bests if a student achieves them.
+
+When referencing results, you should include the total number of athletes in each event (eg. 1st of 30 competitors), but only once per event.
 
 At the end, indicate that additional information including full results can be found at {follow_up_url}.
     """
