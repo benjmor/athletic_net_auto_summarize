@@ -201,5 +201,5 @@ resource "aws_iam_role_policy" "summary_lambda_role" {
 
 # Topic that notifies subscribers when a summary is requested
 resource "aws_sns_topic" "summary_generation_topic" {
-  name = "summary_generation_topic"
+  name = "athletic_net_summary_generation_topic"
 }

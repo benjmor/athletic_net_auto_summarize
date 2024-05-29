@@ -30,7 +30,7 @@ Always include individuals' marks (times/distances) and ranks when referencing a
 
 Call out personal bests and season bests if a student achieves them.
 
-When referencing results, you should include the total number of athletes in each event (eg. 1st of 30 competitors), but only once per event.
+When referencing results, you should use the placement field to include the total number of athletes in each event (eg. placement 1/30 means 1st of 30 competitors), but only once per event.
 
 At the end, indicate that additional information including full results can be found at {follow_up_url}.
     """

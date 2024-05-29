@@ -376,7 +376,7 @@ def lambda_handler(event, context):
         "body": json.dumps(
             {
                 "file_content": "Results not yet generated, will attempt to generate them. Check back in about 15 minutes."
-                + "\n\nNote: Huge meets (eg. Penn Relays) are not supported through this web interface. Create an Issue [here]https://github.com/benjmor/athletic_net_auto_summarize/issues) if you want results from a specific large meet.",
+                + "\n\nNote: Huge meets (eg. Penn Relays) are not supported through this web interface. Create an Issue [here](https://github.com/benjmor/athletic_net_auto_summarize/issues) if you want results from a specific large meet.",
                 "llm_content": "N/A",
                 "numbered_list_prompt_content": numbered_list_prompt_content,
             }
