@@ -41,6 +41,10 @@ The team data includes information about schools that did one rank better or wor
     """
     track_addendum = f"""
 All field (eg. shot put, discus, jumps, and pole vault) marks are measured in feet.
+
+In Track and Field, individuals score points for their team based on their rankings in events. 1st place in an event is worth 10 team points. 2nd place earns 8. 3rd place earns 6. 4th place earns 4. 5th place earns 2. 6th place earns 1.
+
+The school with the most team points at the meet wins the meet.
    """
     if sport_name_proper == "Cross Country":
         llm_payload = [llm_basic_prompt, cross_country_addendum]
