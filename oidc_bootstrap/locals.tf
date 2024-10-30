@@ -43,7 +43,7 @@ locals {
         ],
         "Resource" : [
           "arn:aws:s3:::http://athleticsummary.net/",
-          "arn:aws:s3:::http://athleticsummary.net//*",
+          "arn:aws:s3:::http://athleticsummary.net/*",
           "arn:aws:s3:::docker-selenium-lambda-pr-serverlessdeploymentbuck-*",
         ]
       },
