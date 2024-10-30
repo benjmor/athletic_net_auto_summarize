@@ -20,8 +20,6 @@ COPY ./athletic_net_summarize ./athletic_net_summarize
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r ./requirements.txt
-# Make sure Python scripts in ./tabroom_summary are executable
-# RUN chmod -R +x ./tabroom_summary
 
 CMD [ "main.handler" ]
 

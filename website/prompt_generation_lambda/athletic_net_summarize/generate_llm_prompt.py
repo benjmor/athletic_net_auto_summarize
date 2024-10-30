@@ -35,7 +35,7 @@ When referencing results, you should use the placement field to include the tota
 At the end, indicate that additional information including full results can be found at {follow_up_url}.
     """
     cross_country_addendum = f"""
-The data includes team and individual results. In team results, more points represents a worse finish. The top 5 runners in each race score points for the team. 5 runners are required to field a scoring team.
+The data includes team and individual results. In team results, more points represents a worse finish. The top 5 runners in each race score points for the team; 6th and 7th place runners don't score but cause other teams to accumulate more points. 5 runners are required to field a scoring team.
 
 The team data includes information about schools that did one rank better or worse than {school_name}, listed as better_rival and worse_rival. You can reference these schools to illustrate how {school_name} did in the meet.
     """

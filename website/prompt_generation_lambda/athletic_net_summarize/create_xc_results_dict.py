@@ -64,7 +64,7 @@ def create_xc_results_dict(
                 logging.debug(
                     f"{school_name} ranked {team_rank} in the {gender} {race_name} race. {school_name} scored {parsed_team_score[2].text} points."
                 )
-                xc_results_dict[f"{gender}|{race_name}"]["team_result"].append(
+                xc_results_dict[f"{gender}|{race_name}"]["team_results"].append(
                     {
                         "rank_of_scoring_teams": f"{team_rank}/{total_scoring_teams}",
                         "points": parsed_team_score[2].text,

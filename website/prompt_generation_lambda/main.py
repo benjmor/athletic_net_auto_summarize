@@ -29,7 +29,7 @@ def handler(event, context):
     except Exception:
         logging.error("Error publishing to SNS")
 
-    # Generate a Tabroom summary
+    # Generate a meet summary
     meet_id = event["meet_id"]
     school_id = event["school_id"]
     percentile_minimum = event.get("percentile_minimum", 25)
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         "--meet-id",
         help="Meet ID (typically a 6-digit number) of the meet you want to generate results for.",
         required=False,  # TODO - require again
-        default="523486",
+        default="237325",
     )
     parser.add_argument(
         "-s",
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     event = {
         "meet_id": meet_id,
         "school_id": school_id,
-        "sport_name": "track-and-field-outdoor",
+        "sport_name": "cross-country",  # "track-and-field-outdoor",
         # "percentile_minimum": 0,
     }
     handler(event, {})

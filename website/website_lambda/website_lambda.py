@@ -227,33 +227,6 @@ def lambda_handler(event, context):
                 ),
             }
 
-    # If the API response file exists in S3 and is larger than 5MB, return an error message and exit
-    # COMMENTED OUT - We're trying to support large tournaments now
-    # try:
-    #     api_response_content = s3_client.get_object_attributes(
-    #         Bucket=bucket_name,
-    #         Key=api_response_key,
-    #         ObjectAttributes=["ObjectSize"],
-    #     )
-    #     api_response_size = api_response_content["ObjectSize"]
-    #     print(f"api_response size is {api_response_size}")
-    #     if api_response_size > 5 * 1024 * 1024:
-    #         return {
-    #             "isBase64Encoded": False,
-    #             "statusCode": 400,
-    #             "headers": cors_headers,
-    #             "body": json.dumps(
-    #                 {
-    #                     "file_content": "API response is too large. Please reach out to the Issues page at https://github.com/benjmor/tabroom_auto_summarize/issues to request results for large tournaments.",
-    #                     "llm_content": "N/A",
-    #                     "numbered_list_prompt_content": numbered_list_prompt_content,
-    #                 }
-    #             ),
-    #         }
-    # except Exception as ex:
-    #     print(f"Exception when reading api_response.json: {repr(ex)}")
-    #     pass
-    # Check if there are any files in the path bucket_name/tournament_id
     all_objects = s3_client.list_objects_v2(
         Bucket=bucket_name,
         Prefix=meet_id,
@@ -338,25 +311,7 @@ def lambda_handler(event, context):
                 }
             ),
         }
-    # TODO - Check that the given tournament ID is valid and has results
-    # tournament_url = (
-    #     f"https://www.tabroom.com/index/tourn/index.mhtml?tourn_id={tournament_id}"
-    # )
-    # response = requests.get(tournament_url)
-    # decoded_response = response.content.decode("utf-8")
-    # if tournament_is_invalid(decoded_response):
-    #     return {
-    #         "isBase64Encoded": False,
-    #         "statusCode": 200,
-    #         "headers": cors_headers,
-    #         "body": json.dumps(
-    #             {
-    #                 "file_content": "ERROR - The tournament ID appears to be invalid or finish in the future.",
-    #                 "llm_content": "N/A",
-    #                 "numbered_list_prompt_content": numbered_list_prompt_content,
-    #             }
-    #         ),
-    #     }
+
     # Put a placeholder file in the S3 bucket and then trigger the Lambda to generate the LLM prompts and results
     s3_client.put_object(
         Body="Placeholder during generation.",
@@ -390,8 +345,8 @@ if __name__ == "__main__":
             {
                 "body": json.dumps(
                     {
-                        "meet_id": "807",
-                        "school_id": "523486",
+                        "meet_id": "523486",
+                        "school_id": "807",
                         "read_only": "True",
                     }
                 )
