@@ -1,4 +1,7 @@
-def group_results_by_team(results):
+def group_results_by_team(
+    results: dict,
+    event_type: str,
+):
     """
     This function will take a dict of results and group them by team.
 
@@ -44,19 +47,55 @@ def group_results_by_team(results):
     """
     team_grouped_results = {}
     for result in results:
-        if "individual_results" not in results[result]:
-            continue
-        for individual_result in results[result]["individual_results"]:
-            if individual_result is None:
-                continue
-            team = individual_result.pop("school")
-            if team not in team_grouped_results:
-                team_grouped_results[team] = {"individual_results": []}
-            team_grouped_results[team]["individual_results"].append(individual_result)
+        if "individual_results" in results[result]:
+            for individual_result in results[result]["individual_results"]:
+                if individual_result is None:
+                    continue
+                team = individual_result.pop("school")
+                if team not in team_grouped_results:
+                    team_grouped_results[team] = {}
+                if "individual_results" not in team_grouped_results[team]:
+                    team_grouped_results[team]["individual_results"] = []
+                if "team_results" not in team_grouped_results[team]:
+                    team_grouped_results[team]["team_results"] = []
+                team_grouped_results[team]["individual_results"].append(
+                    individual_result
+                )
+        # Cross-country specific team results logic
+        if event_type == "cross-country" and "team_results" in results[result]:
+            previous_team_result = None
+            for team_result_iterator, team_result in enumerate(
+                results[result]["team_results"]
+            ):
+                team = team_result.get("school_name")
+
+                # If not first, include better rival team
+                try:
+                    team_result["better_rival_result"] = results[result][
+                        "team_results"
+                    ][team_result_iterator - 1]
+                except IndexError:
+                    pass  # Top-ranked teams will have none before them
+
+                # If not last, include worse rival team
+                try:
+                    team_result["worse_rival_result"] = results[result]["team_results"][
+                        team_result_iterator + 1
+                    ]
+                except IndexError:
+                    pass  # Bottom-ranked teams will have none after them
+
+                team_grouped_results[team]["team_results"].append(team_result)
+
     # Sort each team's results by the percentile of the result
     for team in team_grouped_results:
         team_grouped_results[team]["individual_results"].sort(
             key=lambda x: x["percentile"],
             reverse=True,
         )
+        if team_grouped_results[team].get("team_results"):
+            team_grouped_results[team]["team_results"].sort(
+                key=lambda x: x["percentile"],
+                reverse=True,
+            )
     return team_grouped_results

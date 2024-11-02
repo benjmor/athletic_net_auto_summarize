@@ -69,6 +69,9 @@ def create_xc_results_dict(
                         "rank_of_scoring_teams": f"{team_rank}/{total_scoring_teams}",
                         "points": parsed_team_score[2].text,
                         "school_name": school_name,
+                        "percentile": 100
+                        - int(100 * int(team_rank) / total_scoring_teams),
+                        "event_name": f"{gender}|{race_name}",
                     }
                 )
 
@@ -100,8 +103,8 @@ def create_xc_results_dict(
                         "school": parsed_individual_result[6].text,
                         "gender": gender,
                         "race_name": race_name,
-                        # "is_personal_best": bool(check_pb())
-                        # "is_season_best": bool(check_sb())
+                        "is_personal_best": "unknown",  # bool(check_pb())
+                        "is_season_best": "unknown",  # bool(check_sb())
                     }
                 )
         # Iterate after completing each gender

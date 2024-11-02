@@ -30,9 +30,7 @@ def generate_llm_article(
             meet_date=meet_date,
             meet_id=meet_id,
         )
-        + ["<results_table>"]
         + flatten_results(results)
-        + ["</results_table>"]
     )
     final_llm_payload = "\r\n".join(llm_payload)
     logging.info(f"Submitting this payload to the LLM:\n {final_llm_payload}")

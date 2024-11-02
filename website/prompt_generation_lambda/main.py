@@ -99,7 +99,7 @@ if __name__ == "__main__":
     event = {
         "meet_id": meet_id,
         "school_id": school_id,
-        "sport_name": "cross-country",  # "track-and-field-outdoor",
+        "sport_name": "cross-country",  # "track-and-field-outdoor"
         # "percentile_minimum": 0,
     }
     handler(event, {})

@@ -36,7 +36,10 @@ def main(
     meet_name = event_results.get("meet_name")
     meet_location = event_results.get("meet_location")
     meet_date = event_results.get("meet_date")
-    team_grouped_results = group_results_by_team(event_results)
+    team_grouped_results = group_results_by_team(
+        results=event_results,
+        event_type=sport_name,
+    )
     llm_prompts_by_school = {}
     for school in team_grouped_results.keys():
         llm_prompts_by_school[school] = {}
