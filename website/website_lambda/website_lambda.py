@@ -5,10 +5,15 @@ import logging
 import re
 from datetime import datetime, timedelta, timezone
 from botocore.exceptions import ClientError
+from botocore.config import Config
+
 
 """
 This is the main Lambda handler for the website.
 """
+
+logging.basicConfig(level=logging.DEBUG)
+REGION = "us-east-1"
 
 
 class Claude3Wrapper:
@@ -34,11 +39,12 @@ class Claude3Wrapper:
 
         # Initialize the Amazon Bedrock runtime client
         client = self.client or boto3.client(
-            service_name="bedrock-runtime", region_name="us-east-1"
+            service_name="bedrock-runtime",
+            region_name=REGION,
         )
 
         # Invoke Claude 3 with the text prompt
-        model_id = "anthropic.claude-3-sonnet-20240229-v1:0"  # "anthropic.claude-3-sonnet-20240229-v1:0"
+        model_id = "anthropic.claude-3-haiku-20240307-v1:0"
 
         try:
             response = client.invoke_model(
@@ -96,35 +102,37 @@ def send_prompt_to_llm_and_save_to_s3(
     """
     This function will take a prompt, pass it to Claude3, save it to S3, then
     """
+    config = Config(retries={"max_attempts": 3, "mode": "adaptive"})
     claude_client = Claude3Wrapper(
         boto3.client(
             service_name="bedrock-runtime",
-            region_name="us-east-1",
+            region_name=REGION,
+            config=config,
         )
     )
-    full_response = claude_client.invoke_claude_3_with_text(
-        prompt + "\n" + "Do not prepend paragraphs with labels like 'Paragraph 1'."
-    )
-    try:
-        numbered_prompt = (
-            s3_client.get_object(
-                Bucket=bucket_name,
-                Key=numbered_list_prompt_path,
-            )["Body"]
-            .read()
-            .decode("utf-8")
-        )
-        bedrock_numbered_list_response = claude_client.invoke_claude_3_with_text(
-            numbered_prompt
-        )
-        full_response = (
-            full_response
-            + "\n### Event-by-Event Results"
-            + bedrock_numbered_list_response
-        )
-    except Exception as ex:
-        print(f"Error getting numbered list prompt: {ex}")
-        pass
+    print(f"Starting Claude call with prompt: {json.dumps(prompt)}")
+    full_response = claude_client.invoke_claude_3_with_text(prompt)
+    logging.debug(f"Full response: {full_response}")
+    # try:
+    #     numbered_prompt = (
+    #         s3_client.get_object(
+    #             Bucket=bucket_name,
+    #             Key=numbered_list_prompt_path,
+    #         )["Body"]
+    #         .read()
+    #         .decode("utf-8")
+    #     )
+    #     bedrock_numbered_list_response = claude_client.invoke_claude_3_with_text(
+    #         numbered_prompt
+    #     )
+    #     full_response = (
+    #         full_response
+    #         + "\n### Event-by-Event Results"
+    #         + bedrock_numbered_list_response
+    #     )
+    # except Exception as ex:
+    #     print(f"Error getting numbered list prompt: {ex}")
+    #     pass
     s3_client.put_object(
         Body=full_response,
         Bucket=bucket_name,
@@ -203,6 +211,7 @@ def lambda_handler(event, context):
                 ).replace("\uFFFD", "--")
             except Exception as ex:
                 try:
+                    logging.debug(f"Sending this content to Claude: {llm_content}")
                     file_content = send_prompt_to_llm_and_save_to_s3(
                         prompt=llm_content,
                         s3_client=s3_client,

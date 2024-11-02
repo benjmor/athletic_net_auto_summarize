@@ -4,12 +4,6 @@ Generates a human-readable summary of Athletic.net athletics results using Gener
 
 Supports both Track and Cross-Country meets.
 
-# TODOs
-
-- Add team results from Track and Field
-- Validate Cross Country behavior still works
-- Build out the website
-
 # Usage
 
 This solution now runs as a website! Just provide your school ID (number from the URL when you look at the team page) and the website will pull results from the latest meet with results.
