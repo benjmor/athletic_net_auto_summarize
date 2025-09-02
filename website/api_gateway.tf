@@ -169,7 +169,7 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment" {
 resource "aws_api_gateway_stage" "api_stage" {
   stage_name    = "prod"
   rest_api_id   = aws_api_gateway_rest_api.website_api.id
-  deployment_id = aws_api_gateway_deployment.api_gateway_deployment.id
+  deployment_id = "qxcvwg" # aws_api_gateway_deployment.api_gateway_deployment.id
   lifecycle {
     replace_triggered_by = [ aws_api_gateway_integration.api_integration ]
   }
