@@ -1,3 +1,6 @@
+import logging
+
+
 def group_results_by_team(
     results: dict,
     event_type: str,
@@ -63,6 +66,7 @@ def group_results_by_team(
                 )
         # Cross-country specific team results logic
         if event_type == "cross-country" and "team_results" in results[result]:
+            logging.info("Processing cross-country team results...")
             previous_team_result = None
             for team_result_iterator, team_result in enumerate(
                 results[result]["team_results"]

@@ -34,6 +34,7 @@ def main(
         sport_name=sport_name,
         meet_id=meet_id,
     )
+    logging.info(f"Retrieved results for meet {meet_id}")
     meet_name = event_results.get("meet_name")
     meet_location = event_results.get("meet_location")
     meet_date = event_results.get("meet_date")
