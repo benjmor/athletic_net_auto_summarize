@@ -52,7 +52,7 @@ data "aws_iam_policy_document" "lambda_s3_writes" {
   # TODO - scope down these permissions to just what is needed
   statement {
     actions = [
-      "bedrock-runtime:*",
+      "sns:Publish",
       "bedrock:*",
     ]
     resources = [
