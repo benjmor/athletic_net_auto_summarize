@@ -160,8 +160,16 @@ resource "aws_lambda_permission" "api_lambda_permission" {
 resource "aws_api_gateway_deployment" "api_gateway_deployment" {
   depends_on  = [aws_api_gateway_integration.api_integration]
   rest_api_id = aws_api_gateway_rest_api.website_api.id
-  stage_name  = "prod"
   # Will need to redeploy any time there are changes!
+  lifecycle {
+    replace_triggered_by = [ aws_api_gateway_integration.api_integration ]
+  }
+}
+
+resource "aws_api_gateway_stage" "api_stage" {
+  stage_name    = "prod"
+  rest_api_id   = aws_api_gateway_rest_api.website_api.id
+  deployment_id = aws_api_gateway_deployment.api_gateway_deployment.id
   lifecycle {
     replace_triggered_by = [ aws_api_gateway_integration.api_integration ]
   }

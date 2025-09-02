@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "lambda_s3_writes" {
       "lambda:InvokeFunction",
     ]
     resources = [
-      "arn:aws:lambda:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:function:${local.summary_lambda_function_name}",
+      "arn:aws:lambda:${data.aws_region.current}:${data.aws_caller_identity.current.account_id}:function:${local.summary_lambda_function_name}",
     ]
   }
   # TODO - scope down these permissions to just what is needed
