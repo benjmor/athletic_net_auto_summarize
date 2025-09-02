@@ -72,8 +72,7 @@ locals {
           "cloudformation:*",
         ],
         "Resource" : [
-          "arn:aws:cloudformation:us-east-1:238589881750:stack/docker-selenium-lambda-prod",
-          "arn:aws:cloudformation:us-east-1:238589881750:stack/docker-selenium-lambda-prod/*"
+          "arn:aws:cloudformation:us-east-1:238589881750:stack/docker-selenium-lambda-prod*",
         ]
       },
       {
@@ -83,6 +82,15 @@ locals {
           "events:PutTargets",
           "events:DeleteRule",
           "events:RemoveTargets"
+        ],
+        "Resource" : [
+          "*",
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "apigateway:*",
         ],
         "Resource" : [
           "*",
