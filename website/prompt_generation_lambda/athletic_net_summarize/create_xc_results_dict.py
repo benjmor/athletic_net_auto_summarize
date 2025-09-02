@@ -88,11 +88,13 @@ def create_xc_results_dict(
                     By.TAG_NAME, "td"
                 )
                 placement_string = f"{parsed_individual_result[0].text.replace('.', '')}/{total_runners}"
-                percentile = 100 - int(
-                    100
-                    * int(parsed_individual_result[0].text.replace(".", ""))
-                    / total_runners
-                )
+                try:
+                    individual_placement = int(
+                        parsed_individual_result[0].text.replace(".", "")
+                    )
+                except ValueError:
+                    individual_placement = 0
+                percentile = 100 - int(100 * individual_placement / total_runners)
                 xc_results_dict[f"{gender}|{race_name}"]["individual_results"].append(
                     {
                         "placement": placement_string,

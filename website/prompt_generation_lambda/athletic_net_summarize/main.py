@@ -17,6 +17,7 @@ def main(
     meet_id,
     sport_name,
     percentile_minimum,
+    school_name=None,
 ):
     if sport_name not in [
         "cross-country",
